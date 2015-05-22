@@ -23,7 +23,12 @@
 **          Version: 1.0.0                                                **
 ****************************************************************************/
 
+#include <QtGlobal>
+#if (QT_VERSION >= 0x050000)
+#include <QApplication>
+#else
 #include <QtGui/QApplication>
+#endif // (QT_VERSION >= 0x050000)
 #include "mainwindow.h"
 
 int main(int argc, char *argv[])

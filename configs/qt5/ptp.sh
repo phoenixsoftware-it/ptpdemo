@@ -13,6 +13,6 @@ killall -9 ptp4l
 cd "$(dirname "$0")/"
 ./ptp4l -m -f /opt/ptp/slave.cfg -i eth0 > /tmp/ptpFifo &
 ./phc2sys -c CLOCK_REALTIME -s /dev/ptp0 -O 1 -t 0.0001 &
-./PTPDemo 
+./PTPDemo -platform linuxfb -plugin tslib:/dev/input/event1 $1 
                                   
 echo "PTP Demo finished succesfully"

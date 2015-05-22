@@ -463,7 +463,7 @@ color: rgb(231, 231, 231);</string>
            <string/>
           </property>
           <property name="pixmap">
-           <pixmap resource="PTPGraphicResources.qrc">:/resources/partners.png</pixmap>
+           <pixmap resource="PTPGraphicResources.qrc">:/resources/timesys.png</pixmap>
           </property>
           <property name="scaledContents">
            <bool>false</bool>
