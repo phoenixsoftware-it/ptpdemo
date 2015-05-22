@@ -1,0 +1,8 @@
+/*.d
+/*.o
+/hwstamp_ctl
+/phc2sys
+/pmc
+/ptp4l
+.version
+testptp

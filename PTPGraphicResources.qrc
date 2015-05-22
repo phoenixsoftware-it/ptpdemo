@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/">
+        <file>resources/exit-button.png</file>
+        <file>resources/metal1.jpg</file>
+        <file>resources/greenLED.png</file>
+        <file>resources/redLED.png</file>
+        <file>resources/partners.png</file>
+    </qresource>
+</RCC>
