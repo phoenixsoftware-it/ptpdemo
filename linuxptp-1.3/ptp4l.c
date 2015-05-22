@@ -339,8 +339,7 @@ int main(int argc, char *argv[])
 			fprintf(stderr, "interface '%s' does not support "
 				        "requested timestamping mode.\n",
 				iface[i].name);
-			iface[i].ts_info.so_timestamping = required_modes;
-			/*return -1;*/
+			return -1;
 		}
 	}
 

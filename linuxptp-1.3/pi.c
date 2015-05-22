@@ -47,8 +47,8 @@ double configured_pi_ki_norm_max = 0.3;
 double configured_pi_offset = 0.0;
 double configured_pi_f_offset = 0.0000001; /* 100 nanoseconds */
 int configured_pi_max_freq = 900000000;
-#ifdef ADJUST_WITHOUT_PHC2SYS
-double configured_pi_max_offset = 3.0;/* 3 sec */
+#ifdef PHC2SYS_ADJUST_TIME
+double configured_pi_max_offset = 0.001;/*  1msec */
 #endif
 
 struct pi_servo {
@@ -226,7 +226,7 @@ struct servo *pi_servo_create(int fadj, int max_ppb, int sw_ts)
 	if (configured_pi_max_freq && s->maxppb > configured_pi_max_freq) {
 		s->maxppb = configured_pi_max_freq;
 	}
-#ifdef ADJUST_WITHOUT_PHC2SYS
+#ifdef PHC2SYS_ADJUST_TIME
 	if (configured_pi_max_offset > 0.0) {
 		s->max_offset = configured_pi_max_offset * NSEC_PER_SEC;
 	} else {

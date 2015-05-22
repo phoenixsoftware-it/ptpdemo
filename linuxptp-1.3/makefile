@@ -15,28 +15,35 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-EXTRA_CFLAGS := -DADJUST_WITHOUT_PHC2SYS
+KBUILD_OUTPUT ?= /lib/modules/$(shell uname -r)/build
+
+FEAT_CFLAGS :=
+ifneq ($(shell grep --no-messages clock_adjtime /usr/include/bits/time.h),)
+FEAT_CFLAGS += -D_GNU_SOURCE -DHAVE_CLOCK_ADJTIME
+endif
+
+EXTRA_CFLAGS := -DPHC2SYS_ADJUST_TIME
 
 DEBUG	=
-CC	= $(CROSS_COMPILE)gcc
+INC	= -I$(KBUILD_OUTPUT)/usr/include
 VER     = -DVER=$(version)
 CFLAGS	= -Wall $(VER) $(INC) $(DEBUG) $(FEAT_CFLAGS) $(EXTRA_CFLAGS)
 LDLIBS	= -lm -lrt $(EXTRA_LDFLAGS)
-PRG	= ptp4l pmc phc2sys hwstamp_ctl testptp
+PRG	= ptp4l pmc phc2sys hwstamp_ctl
 OBJ     = bmc.o clock.o clockadj.o config.o fault.o fsm.o ptp4l.o mave.o \
  msg.o phc.o pi.o port.o print.o raw.o servo.o sk.o stats.o tlv.o tmtab.o \
  transport.o udp.o udp6.o uds.o util.o version.o
 
-OBJECTS	= $(OBJ) hwstamp_ctl.o phc2sys.o pmc.o pmc_common.o sysoff.o testptp.o
+OBJECTS	= $(OBJ) hwstamp_ctl.o phc2sys.o pmc.o pmc_common.o sysoff.o
 SRC	= $(OBJECTS:.o=.c)
 DEPEND	= $(OBJECTS:.o=.d)
 srcdir	:= $(dir $(lastword $(MAKEFILE_LIST)))
 version := $(shell $(srcdir)/version.sh $(srcdir))
 VPATH	= $(srcdir)
 
-prefix	= $(DESTDIR)/usr/
+prefix	= $(DESTDIR)
 sbindir	= $(prefix)/sbin
-mandir	= $(prefix)/share/man
+mandir	= $(prefix)/man
 man8dir	= $(mandir)/man8
 
 all: $(PRG)
@@ -51,8 +58,6 @@ phc2sys: clockadj.o msg.o phc.o phc2sys.o pi.o pmc_common.o print.o servo.o \
  version.o
 
 hwstamp_ctl: hwstamp_ctl.o version.o
-
-testptp: testptp.o
 
 version.o: .version version.sh $(filter-out version.d,$(DEPEND))
 

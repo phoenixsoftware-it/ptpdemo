@@ -322,26 +322,15 @@ static int do_sysoff_loop(struct clock *clock, clockid_t src,
 	return err;
 }
 
-static unsigned long long last_nsec = 0;
-
 static int do_phc_loop(struct clock *clock, clockid_t src,
 		       struct timespec *interval, int n_readings)
 {
 	uint64_t ts;
 	int64_t offset, delay;
-	uint64_t	nsec;
-	struct timespec now;
 
 	clock->source_label = "phc";
+
 	while (1) {
-		clock_gettime(CLOCK_REALTIME, &now);
-		nsec = now.tv_sec * 1000000000LLU + now.tv_sec;
-		if (!last_nsec) {
-			last_nsec = nsec;
-		} else {
-			pr_debug(" delta ns = %llu\n", nsec - last_nsec);
-			last_nsec = nsec;
-		}
 		clock_nanosleep(CLOCK_MONOTONIC, 0, interval, NULL);
 		if (!read_phc(src, clock->clkid, n_readings,
 			      &offset, &ts, &delay)) {
@@ -576,6 +565,7 @@ static void usage(char *progname)
 		" -x             apply leap seconds by servo instead of kernel\n"
 		" -l [num]       set the logging level to 'num' (6)\n"
 		" -m             print messages to stdout\n"
+		" -t [val]       maximum offset range threshold\n"
 		" -q             do not print messages to the syslog\n"
 		" -v             prints the software version and exits\n"
 		" -h             prints this message and exits\n"
@@ -605,7 +595,7 @@ int main(int argc, char *argv[])
 	progname = strrchr(argv[0], '/');
 	progname = progname ? 1+progname : argv[0];
 	while (EOF != (c = getopt(argc, argv,
-				  "c:d:s:P:I:S:F:R:N:O:i:u:wn:xl:mqvh"))) {
+				  "c:d:s:t:P:I:S:F:R:N:O:i:u:wn:xl:mqvh"))) {
 		switch (c) {
 		case 'c':
 			dst_clock.clkid = clock_open(optarg);
@@ -634,6 +624,12 @@ int main(int argc, char *argv[])
 					  0.0, DBL_MAX))
 				return -1;
 			break;
+#ifdef PHC2SYS_ADJUST_TIME
+		case 't':
+			if (get_arg_val_d(c, optarg, &configured_pi_max_offset,
+						0.0, DBL_MAX))
+				return -1;
+#endif
 		case 'S':
 			if (get_arg_val_d(c, optarg, &configured_pi_offset,
 					  0.0, DBL_MAX))

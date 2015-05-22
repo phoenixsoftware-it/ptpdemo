@@ -43,8 +43,6 @@
 #define MAVE_LENGTH 10
 #define POW2_41 ((double)(1ULL << 41))
 
-#define CLOCK_STABLE_TSH			100 /* nsec */
-
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
 struct freq_estimator {
@@ -98,7 +96,6 @@ struct clock {
 	struct clock_description desc;
 	struct clock_stats stats;
 	int stats_interval;
-	int resync_rtc; /* do we need to update rtc ?*/
 };
 
 struct clock the_clock;
@@ -593,7 +590,7 @@ struct clock *clock_create(int phc_index, struct interface *iface, int count,
 	c->utc_offset = CURRENT_UTC_OFFSET;
 	c->time_source = dds->time_source;
 	c->desc = dds->clock_desc;
-	c->resync_rtc = 1;
+
 	if (c->free_running) {
 		c->clkid = CLOCK_INVALID;
 		if (timestamping == TS_SOFTWARE || timestamping == TS_LEGACY_HW) {
@@ -1039,9 +1036,6 @@ enum servo_state clock_synchronize(struct clock *c,
 	tmv_t ingress, origin;
 	enum servo_state state = SERVO_UNLOCKED;
 
-	Integer64 offset;
-	struct timespec ts;
-
 	ingress = timespec_to_tmv(ingress_ts);
 	origin  = timestamp_to_tmv(origin_ts);
 
@@ -1080,24 +1074,10 @@ enum servo_state clock_synchronize(struct clock *c,
 			"path delay %9" PRId64,
 			tmv_to_nanoseconds(c->master_offset), state, adj,
 			tmv_to_nanoseconds(c->path_delay));
-
-		offset = tmv_to_nanoseconds(c->master_offset);
-#ifdef ADJUST_WITHOUT_PHC2SYS
-		if (offset < 0) offset = -offset;
-
-		if (c->resync_rtc && offset < CLOCK_STABLE_TSH && state == SERVO_LOCKED) {
-      	clock_gettime(c->clkid, &ts);
-      	if (clock_settime(CLOCK_REALTIME, &ts)) {
-         	pr_err("clock_settime");
-      	}
-			c->resync_rtc = 0;
-		}
-#endif
 	}
 
 	switch (state) {
 	case SERVO_UNLOCKED:
-		c->resync_rtc = 1;
 		break;
 	case SERVO_JUMP:
 		clockadj_set_freq(c->clkid, -adj);

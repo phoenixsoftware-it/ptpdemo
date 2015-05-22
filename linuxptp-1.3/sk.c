@@ -39,10 +39,6 @@ int sk_tx_timeout = 1;
 
 /* private methods */
 
-#ifndef HWTSTAMP_TX_ONESTEP_SYNC
-#define HWTSTAMP_TX_ONESTEP_SYNC HWTSTAMP_TX_ON
-#endif
-
 static int hwts_init(int fd, char *device, int rx_filter, int one_step)
 {
 	struct ifreq ifreq;

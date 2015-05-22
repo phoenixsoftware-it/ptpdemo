@@ -101,6 +101,12 @@ extern double configured_pi_f_offset;
  */
 extern int configured_pi_max_freq;
 
+
+
+#ifdef PHC2SYS_ADJUST_TIME
+extern double configured_pi_max_offset;
+#endif
+
 struct servo *pi_servo_create(int fadj, int max_ppb, int sw_ts);
 
 #endif
